@@ -36,7 +36,9 @@ def input_matriz(matrix, n):
 matrix, aristas = input_matriz(matrix, n)
 #Representación matemática
 print("Representación matemática")
-print("(v,w) = ", aristas)
+print("Grafo = (v,a)")
+print(f"v = {list(range(1, n + 1))}")
+print(f"a = {aristas}")
 print("Matriz de adyacencia")
 print(matrix)
 
@@ -56,9 +58,7 @@ else:
 grafo["title"] = "Grafo de cuello negro"
 grafo.vs["name"] = [str(i+1) for i in range(grafo.vcount())]
 
-
-
-
+print("tipo de grafo: ", tipo)
 
 if tipo == "no dirigido":
     caminosN = grafo.degree()
@@ -99,7 +99,6 @@ if tipo == "dirigido":
        vecinos = grafo.neighbors(i)
        vecinos = [v+1 for v in vecinos if v != i]
        print(f"Vecinos Nodo {i+1}: {vecinos}")
-
 
 
 fig, ax = plt.subplots(figsize=(6,6))
