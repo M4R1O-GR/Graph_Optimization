@@ -2,8 +2,6 @@ import igraph as ig
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-
 n = int(input("Ingrese la dimensión N de la matriz: "))
 aristas = ()
 matrix = np.zeros((n,n))
@@ -31,17 +29,14 @@ def input_matriz(matrix, n):
         aristas_totales = tuple(aristas_temp)
     return matrix, aristas_totales
 
-
-
 matrix, aristas = input_matriz(matrix, n)
-#Representación matemática
-print("Representación matemática")
+
+print("\n--- REPRESENTACIÓN MATEMÁTICA ---")
 print("(v,w) = ", aristas)
-print("Matriz de adyacencia")
+print("\n--- MATRIZ DE ADYACENCIA ---")
 print(matrix)
 
 
-# Creacion del Grafo
 simetrica = np.array_equal(matrix, matrix.T)
 diagonal = np.all(np.diag(matrix) == 0)
 tipo = ""
@@ -55,10 +50,6 @@ else:
 
 grafo["title"] = "Grafo de cuello negro"
 grafo.vs["name"] = [str(i+1) for i in range(grafo.vcount())]
-
-
-
-
 
 if tipo == "no dirigido":
     caminosN = grafo.degree()
@@ -101,6 +92,115 @@ if tipo == "dirigido":
        print(f"Vecinos Nodo {i+1}: {vecinos}")
 
 
+print("\n--- PESO DE ARISTAS = 1 ---")
+matriz_pesos = np.zeros((n,n))
+pesos_grafo = []
+
+
+for edge in grafo.es:
+    u = edge.source
+    v = edge.target
+    peso = 1.0 
+    matriz_pesos[u, v] = peso
+    if tipo == "no dirigido":
+        matriz_pesos[v, u] = peso
+    pesos_grafo.append(peso)
+
+
+grafo.es["label"] = [str(int(p)) for p in pesos_grafo]
+
+print("\n--- SELECCIÓN DE RUTA ---")
+origen = int(input(f"Ingrese el nodo de ORIGEN (1 a {n}): ")) - 1
+destino = int(input(f"Ingrese el nodo de DESTINO (1 a {n}): ")) - 1
+
+
+def algoritmo_dijkstra(matriz_p, inicio, dim):
+    distancias = [float('inf')] * dim
+    distancias[inicio] = 0
+    visitados = [False] * dim
+    previos = [-1] * dim
+
+    for _ in range(dim):
+        min_dist = float('inf')
+        u = -1
+        for i in range(dim):
+            if not visitados[i] and distancias[i] < min_dist:
+                min_dist = distancias[i]
+                u = i
+        
+        if u == -1: break
+        visitados[u] = True
+        
+        for v in range(dim):
+            if matriz_p[u, v] != 0 and not visitados[v]:
+                alt = distancias[u] + matriz_p[u, v]
+                if alt < distancias[v]:
+                    distancias[v] = alt
+                    previos[v] = u
+    return distancias, previos
+
+
+def algoritmo_bellman_ford(matriz_p, inicio, dim):
+    distancias = [float('inf')] * dim
+    distancias[inicio] = 0
+    previos = [-1] * dim
+    
+    lista_aristas = [(u, v, matriz_p[u,v]) for u in range(dim) for v in range(dim) if matriz_p[u,v] != 0]
+    
+    for _ in range(dim - 1):
+        for u, v, p in lista_aristas:
+            if distancias[u] != float('inf') and distancias[u] + p < distancias[v]:
+                distancias[v] = distancias[u] + p
+                previos[v] = u
+                
+   
+    for u, v, p in lista_aristas:
+        if distancias[u] != float('inf') and distancias[u] + p < distancias[v]:
+            print("¡Alerta! El grafo contiene un ciclo de peso negativo.")
+            return distancias, previos
+            
+    return distancias, previos
+
+
+dist_d, prev_d = algoritmo_dijkstra(matriz_pesos, origen, n)
+dist_bf, prev_bf = algoritmo_bellman_ford(matriz_pesos, origen, n)
+
+
+ruta_final = []
+if dist_d[destino] != float('inf'):
+    actual = destino
+    while actual != -1:
+        ruta_final.insert(0, actual)
+        actual = prev_d[actual]
+
+print("\n--- RESULTADOS DE LA RUTA MÁS CORTA ---")
+if ruta_final and len(ruta_final) > 1 or origen == destino:
+    ruta_texto = " -> ".join([str(nodo + 1) for nodo in ruta_final])
+    print(f"Nodos de la ruta más corta: {ruta_texto}")
+    print(f"Costo total (según Dijkstra): {int(dist_d[destino])}")
+    print(f"Costo total (según Bellman-Ford): {int(dist_bf[destino])}")
+else:
+    print("No existe una ruta viable entre el origen y el destino seleccionados.")
+
+
+colores_vertices = ["blue"] * n
+colores_aristas = ["black"] * grafo.ecount()
+grosores_aristas = [1] * grafo.ecount()
+
+if ruta_final:
+    for nodo in ruta_final:
+        colores_vertices[nodo] = "red" 
+        
+    for i in range(len(ruta_final) - 1):
+        u, v = ruta_final[i], ruta_final[i+1]
+        try:
+           
+            eid = grafo.get_eid(u, v)
+            colores_aristas[eid] = "red" 
+            grosores_aristas[eid] = 3.0
+        except ig.InternalError:
+            pass
+
 
 fig, ax = plt.subplots(figsize=(6,6))
 ig.plot(
@@ -108,29 +208,16 @@ ig.plot(
     target=ax,
     layout="circle",
     vertex_size=50,
-    vertex_color="blue",
+    vertex_color=colores_vertices,       
     vertex_frame_width=2.0,
     vertex_frame_color="black",
     vertex_label=grafo.vs["name"],
-    vertex_label_size=6,
-    edge_width=1,
-    edge_color="black",
+    vertex_label_size=12,
+    edge_width=grosores_aristas,         
+    edge_color=colores_aristas,          
+    edge_label=grafo.es["label"],        
+    edge_label_size=10,
+    edge_label_color="red"
 )
 
 plt.show()
-
-##print(Matrix)
-
-
-
-
-
-
-
-
-"""vertex = [1,2,3,4,5]
-edges = [(1,2),(3,4),(4,5)]
-
-g = gp.Graph(vertex,edges)
-
-print(g)"""
