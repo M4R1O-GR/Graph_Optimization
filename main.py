@@ -54,22 +54,55 @@ else:
    tipo = "dirigido"
 
 grafo["title"] = "Grafo de cuello negro"
-grafo.vs["name"] = [str(i) for i in range(grafo.vcount())]
-
-caminosN = grafo.degree()
-
-for i in range(grafo.vcount()):
-    print(f"Caminos Nodo {i+1}: {caminosN[i]}")
-
-# caminos = grafo.get_all_simple_paths(0, n-1)
-
-# if grafo.is_dag():
-#     ciclos = grafo.fundamental_cycles()
-#     print("Ciclos: ", ciclos)
+grafo.vs["name"] = [str(i+1) for i in range(grafo.vcount())]
 
 
 
-fig, ax = plt.subplots(figsize=(12,12))
+
+
+if tipo == "no dirigido":
+    caminosN = grafo.degree()
+    print("\n")
+    for i in range(grafo.vcount()):
+        print(f"Caminos Nodo {i+1}: {caminosN[i]}")
+    print("\n")
+    
+    for i in range(len(matrix)):
+        ciclos = matrix[i,i]
+        if ciclos == 1:
+            print(f"Ciclos Nodo {i+1}: {ciclos}")
+        else:
+            print(f"Ciclos Nodo {i+1}: {ciclos}")
+    
+    print("\n")
+    for i in range(grafo.vcount()):
+        vecinos = grafo.neighbors(i)
+        vecinos = [v+1 for v in vecinos if v != i]
+        print(f"Vecinos Nodo {i+1}: {vecinos}")
+
+if tipo == "dirigido":
+    caminosN = grafo.degree(mode="out") 
+    print("\n")
+    for i in range(grafo.vcount()):
+            print(f"Caminos Nodo {i+1}: {caminosN[i]}")
+    print("\n")
+    
+    for i in range(len(matrix)):
+        ciclos = int(matrix[i,i])
+        if ciclos == 1:
+            print(f"Ciclos Nodo {i+1}: {ciclos}")
+        else:
+            print(f"Ciclos Nodo {i+1}: {ciclos}")
+    
+    print("\n")
+    for i in range(grafo.vcount()):
+       vecinos = grafo.neighbors(i)
+       vecinos = [v+1 for v in vecinos if v != i]
+       print(f"Vecinos Nodo {i+1}: {vecinos}")
+
+
+
+fig, ax = plt.subplots(figsize=(6,6))
 ig.plot(
     grafo,
     target=ax,
