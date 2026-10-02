@@ -1,6 +1,99 @@
-from re import match
-
 import main
+
+estado = {
+    "n": None,
+    "matrix": None,
+    "aristas": (),
+    "grafo": None,
+    "tipo": "",
+    "matriz_pesos": None,
+    "origen": None,
+    "destino": None,
+    "ruta": [],
+}
+
+
+def hay_grafo():
+    return estado["grafo"] is not None
+
+
+def advertir_sin_grafo():
+    if hay_grafo():
+        return True
+    print("Primero ingrese la matriz de adyacencia (opción 1).")
+    return False
+
+
+def opcion_ingresar_matriz():
+    n = main.solicitar_dimension()
+    matrix = main.crear_matriz(n)
+    matrix, aristas = main.input_matriz(matrix, n)
+    grafo, tipo = main.crear_grafo(matrix)
+    matriz_pesos = main.asignar_pesos(grafo, tipo)
+
+    estado.update({
+        "n": n,
+        "matrix": matrix,
+        "aristas": aristas,
+        "grafo": grafo,
+        "tipo": tipo,
+        "matriz_pesos": matriz_pesos,
+        "origen": None,
+        "destino": None,
+        "ruta": [],
+    })
+    print("\nGrafo cargado correctamente.")
+
+
+def opcion_ver_caminos():
+    if not advertir_sin_grafo():
+        return
+    main.mostrar_tipo(estado["grafo"], estado["tipo"])
+    main.mostrar_caminos(estado["grafo"], estado["tipo"])
+    main.mostrar_vecinos(estado["grafo"])
+
+
+def opcion_ver_ciclos():
+    if not advertir_sin_grafo():
+        return
+    main.mostrar_ciclos(estado["matrix"])
+
+
+def opcion_dijkstra():
+    if not advertir_sin_grafo():
+        return
+    origen, destino = main.seleccionar_ruta(estado["n"])
+    distancias, previos = main.algoritmo_dijkstra(estado["matriz_pesos"], origen, estado["n"])
+    ruta = main.reconstruir_ruta(destino, previos)
+
+    estado.update({"origen": origen, "destino": destino, "ruta": ruta})
+    main.mostrar_resultado_dijkstra(ruta, distancias[destino])
+
+
+def opcion_bellman_ford():
+    if not advertir_sin_grafo():
+        return
+    origen, destino = main.seleccionar_ruta(estado["n"])
+    distancias, previos = main.algoritmo_bellman_ford(estado["matriz_pesos"], origen, estado["n"])
+    ruta = main.reconstruir_ruta(destino, previos)
+
+    estado.update({"origen": origen, "destino": destino, "ruta": ruta})
+    main.mostrar_resultado_bellman_ford(ruta, distancias[destino])
+
+
+def opcion_ver_grafo():
+    if not advertir_sin_grafo():
+        return
+    if not estado["ruta"]:
+        print("Aún no se calcula una ruta; se mostrará el grafo sin resaltar.")
+    main.graficar_grafo(estado["grafo"], estado["ruta"])
+
+
+def opcion_ver_representacion():
+    if not advertir_sin_grafo():
+        return
+    main.mostrar_representacion(estado["n"], estado["aristas"], estado["matrix"])
+
 
 def menu():
     while True:
@@ -22,19 +115,19 @@ def menu():
 
         match(opc):
             case 1:
-                pass
+                opcion_ingresar_matriz()
             case 2:
-                pass
+                opcion_ver_caminos()
             case 3:
-                pass
+                opcion_ver_ciclos()
             case 4:
-                pass
+                opcion_dijkstra()
             case 5:
-                pass
+                opcion_bellman_ford()
             case 6:
-                pass
+                opcion_ver_grafo()
             case 7:
-                pass
+                opcion_ver_representacion()
             case 8:
                 break
             case _:
