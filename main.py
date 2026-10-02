@@ -31,9 +31,13 @@ def input_matriz(matrix, n):
 
 matrix, aristas = input_matriz(matrix, n)
 
+
 print("\n--- REPRESENTACIÓN MATEMÁTICA ---")
-print("(v,w) = ", aristas)
+print("Grafo = (v,a)")
+print(f"v = {list(range(1, n + 1))}")
+print(f"a = {aristas}")
 print("\n--- MATRIZ DE ADYACENCIA ---")
+
 print(matrix)
 
 
@@ -51,11 +55,15 @@ else:
 grafo["title"] = "Grafo de cuello negro"
 grafo.vs["name"] = [str(i+1) for i in range(grafo.vcount())]
 
+
+
+print(f"\nTipo de grafo: {tipo}")
+
 if tipo == "no dirigido":
     caminosN = grafo.degree()
     print("\n")
     for i in range(grafo.vcount()):
-        print(f"Caminos Nodo {i+1}: {caminosN[i]}")
+        print(f"\nCaminos Nodo {i+1}: {caminosN[i]}")
     print("\n")
     
     for i in range(len(matrix)):
@@ -90,6 +98,7 @@ if tipo == "dirigido":
        vecinos = grafo.neighbors(i)
        vecinos = [v+1 for v in vecinos if v != i]
        print(f"Vecinos Nodo {i+1}: {vecinos}")
+
 
 
 print("\n--- PESO DE ARISTAS = 1 ---")
@@ -200,6 +209,7 @@ if ruta_final:
             grosores_aristas[eid] = 3.0
         except ig.InternalError:
             pass
+
 
 
 fig, ax = plt.subplots(figsize=(6,6))
