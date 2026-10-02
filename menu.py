@@ -39,3 +39,6 @@ def menu():
                 break
             case _:
                 print("Opción no válida.")
+
+
+menu()
